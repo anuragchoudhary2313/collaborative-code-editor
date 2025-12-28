@@ -32,7 +32,7 @@ A real-time collaborative code editor powered by AI, built with Flask, Socket.IO
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/collaborative-code-editor.git
+git clone https://github.com/anuragchoudhary2313/collaborative-code-editor.git
 cd collaborative-code-editor
 
 # Create virtual environment

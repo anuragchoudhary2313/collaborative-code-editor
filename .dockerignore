@@ -4,9 +4,13 @@ __pycache__/
 .git/
 .gitignore
 *.md
-.env
+*.env
 *.json
-*.txt
+DOCKER_INSTALL_GUIDE.txt
+DOCKER_DEPLOYMENT_ALTERNATIVE.md
+BUILD_COMPLETE_CODE_EDITOR.txt
+START_COLLABORATIVE_CODE_EDITOR.txt
+*.bat
 advanced_*.py
 my_*.py
 demo_*.py
