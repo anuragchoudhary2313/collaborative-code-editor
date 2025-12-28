@@ -102,12 +102,18 @@ class CodeSuggestionAgent:
     """
 
     def __init__(self):
-        self.agent = ACELiteLLM(model=MODEL, api_key=GROQ_API_KEY)
+        self.agent = None  # Lazy initialization
         self.evaluation_env = CodeQualityEnvironment()
+
+    def _ensure_agent(self):
+        """Lazy load the LLM agent on first use"""
+        if self.agent is None:
+            self.agent = ACELiteLLM(model=MODEL, api_key=GROQ_API_KEY)
 
     def analyze_code(self, code: str, language: str = "python") -> dict:
         """Analyze code and return suggestions"""
         try:
+            self._ensure_agent()  # Initialize on first use
             evaluation = self.evaluation_env.evaluate(code, language)
 
             # Generate smart suggestions using LLM
@@ -157,6 +163,7 @@ Provide JSON response with this structure:
     def generate_explanation(self, code: str, context: str = "") -> str:
         """Generate explanation of what code does"""
         try:
+            self._ensure_agent()  # Initialize on first use
             prompt = f"Explain what this code does in 2-3 sentences:\n```\n{code}\n```"
             return self.agent.ask(prompt)
         except:

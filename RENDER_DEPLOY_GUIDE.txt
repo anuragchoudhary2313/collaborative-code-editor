@@ -1,0 +1,168 @@
+# Render Deployment - Step by Step
+
+## ✅ Ready to Deploy to Render (Free Tier)
+
+Your GitHub repo is clean and ready: https://github.com/anuragchoudhary2313/collaborative-code-editor
+
+---
+
+## Deployment Steps
+
+### 1. Sign Up / Log In to Render
+- Go to: https://dashboard.render.com/
+- Sign up with GitHub (easiest)
+- Or create account with email
+
+### 2. Create New Web Service
+1. Click **"New +"** button (top right)
+2. Select **"Web Service"**
+
+### 3. Connect GitHub Repository
+1. Click **"Connect account"** (if first time)
+2. Authorize Render to access GitHub
+3. Search for: `collaborative-code-editor`
+4. Click **"Connect"** on your repository
+
+### 4. Configure Service
+
+Fill in these exact values:
+
+**Name:**
+```
+collaborative-code-editor
+```
+
+**Region:**
+```
+Oregon (US West) - or closest to you
+```
+
+**Branch:**
+```
+main
+```
+
+**Root Directory:**
+```
+(leave empty)
+```
+
+**Runtime:**
+```
+Python 3
+```
+
+**Build Command:**
+```
+pip install -r requirements.txt
+```
+
+**Start Command:**
+```
+gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT code_editor_app:app
+```
+
+**Instance Type:**
+```
+Free
+```
+
+### 5. Add Environment Variable
+
+Click **"Advanced"** → **"Add Environment Variable"**
+
+- **Key:** `GROQ_API_KEY`
+- **Value:** (paste your Groq API key here)
+
+### 6. Deploy!
+
+1. Click **"Create Web Service"**
+2. Wait 3-5 minutes for build to complete
+3. You'll see build logs in real-time
+
+---
+
+## After Deployment
+
+### Your App URL:
+Render will provide a URL like:
+```
+https://collaborative-code-editor-xxxx.onrender.com
+```
+
+### Monitor Your App:
+- **Logs:** Dashboard → your service → "Logs" tab
+- **Metrics:** Dashboard → your service → "Metrics" tab
+- **Settings:** Change environment variables anytime
+
+---
+
+## Important Notes
+
+⚠️ **Free Tier Limitations:**
+- App will **spin down after 15 minutes** of inactivity
+- **30-60 second cold start** when someone accesses it
+- 750 hours/month free (about 31 days if always running, but it sleeps)
+
+✅ **Benefits:**
+- 100% free forever
+- Automatic SSL (HTTPS)
+- Custom domains supported
+- Real WebSocket support
+- No credit card required
+
+---
+
+## Upgrade Options (Optional)
+
+If you want **always-on** service:
+
+**Starter Plan: $7/month**
+- No cold starts
+- 512MB RAM
+- Always running
+
+To upgrade:
+1. Dashboard → your service
+2. Settings → "Instance Type"
+3. Select "Starter" → Save Changes
+
+---
+
+## Test Your Deployment
+
+Once deployed:
+1. Open your Render URL
+2. Create a new session
+3. Test code editor
+4. Test AI analysis
+5. Try real-time collaboration (open in 2 tabs)
+
+---
+
+## Troubleshooting
+
+**Build fails?**
+- Check logs in Render dashboard
+- Verify requirements.txt is present
+- Check Python version compatibility
+
+**App not starting?**
+- Verify start command is correct
+- Check GROQ_API_KEY is set
+- View logs for error messages
+
+**WebSocket not working?**
+- Render supports WebSocket on all plans
+- Check browser console for errors
+- Verify flask-socketio is installed
+
+---
+
+## Current Status
+
+✅ GitHub repo: Clean and updated
+✅ Docker Hub: Image available at `anurag2313/collaborative-code-editor`
+✅ Ready to deploy to Render!
+
+**Next:** Follow steps 1-6 above in the Render dashboard (now open in your browser)
