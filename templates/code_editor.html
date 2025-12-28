@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Code Editor - ACE Framework</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.6));
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .session-info {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .create-session-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .create-session-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Active Users */
+        .active-users {
+            padding: 15px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .active-users h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .user-item {
+            padding: 8px 12px;
+            background: rgba(71, 85, 105, 0.3);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-online-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Sessions List */
+        .sessions-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .sessions-list h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .session-item {
+            padding: 12px;
+            background: rgba(71, 85, 105, 0.2);
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .session-item:hover {
+            background: rgba(71, 85, 105, 0.4);
+            border-left-color: #60a5fa;
+        }
+
+        .session-item-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .session-item-meta {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Editor Header */
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .editor-title-section {
+            flex: 1;
+        }
+
+        .editor-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .editor-language {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select {
+            padding: 8px 12px;
+            background: rgba(71, 85, 105, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #60a5fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: #60a5fa;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        /* Code Editor */
+        .code-editor-wrapper {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        #code-editor {
+            flex: 1;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            background: #1e293b;
+            color: #e2e8f0;
+            border: none;
+            padding: 15px;
+            resize: none;
+            line-height: 1.6;
+        }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .analysis-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(71, 85, 105, 0.2);
+        }
+
+        .analysis-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #60a5fa;
+        }
+
+        .analysis-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 6px 12px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #94a3b8;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: rgba(59, 130, 246, 0.4);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+
+        .tab-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .analysis-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .analysis-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .quality-score {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+            background: conic-gradient(#10b981 0deg, #10b981 300deg, rgba(148, 163, 184, 0.2) 300deg);
+        }
+
+        .score-text {
+            flex: 1;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .issue {
+            padding: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid #ef4444;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .suggestion {
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .tip {
+            padding: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid #10b981;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .security-warning {
+            padding: 10px;
+            background: rgba(251, 146, 60, 0.1);
+            border-left: 3px solid #fb923c;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin: 10px 0 8px 0;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(71, 85, 105, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(71, 85, 105, 0.5);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(71, 85, 105, 0.3);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(71, 85, 105, 0.5);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(30, 41, 59, 0.95);
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: #e2e8f0;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        .toast.success {
+            border-left-color: #10b981;
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>💻 Code Editor</h2>
+                <div class="session-info" id="session-status">No session active</div>
+                <button class="create-session-btn" onclick="openCreateSessionModal()">+ New Session</button>
+            </div>
+
+            <div class="active-users">
+                <h3>👥 Active Users</h3>
+                <div id="users-list"></div>
+            </div>
+
+            <div class="sessions-list">
+                <h3>📂 Sessions</h3>
+                <div id="sessions-list"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="editor-header">
+                <div class="editor-title-section">
+                    <div class="editor-title" id="editor-title">Collaborative Code Editor</div>
+                    <div class="editor-language" id="editor-lang">Select or create a session</div>
+                </div>
+                <div class="header-actions">
+                    <select id="language-select" onchange="changeLanguage(this.value)">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="sql">SQL</option>
+                    </select>
+                    <button class="header-btn" onclick="analyzeCode()">🔍 Analyze</button>
+                    <button class="header-btn" onclick="explainCode()">📚 Explain</button>
+                </div>
+            </div>
+
+            <!-- Editor Container -->
+            <div class="editor-container">
+                <!-- Code Editor -->
+                <div class="code-editor-wrapper">
+                    <textarea id="code-editor" placeholder="Start typing code here..."></textarea>
+                </div>
+
+                <!-- Analysis Panel -->
+                <div class="analysis-panel">
+                    <div class="analysis-header">
+                        <h3>🤖 AI Analysis</h3>
+                        <div class="analysis-tabs">
+                            <button class="tab-btn active" onclick="switchTab('quality')">Quality</button>
+                            <button class="tab-btn" onclick="switchTab('suggestions')">Suggestions</button>
+                            <button class="tab-btn" onclick="switchTab('security')">Security</button>
+                            <button class="tab-btn" onclick="switchTab('explanation')">Explain</button>
+                        </div>
+                    </div>
+                    <div class="analysis-content" id="analysis-content">
+                        <div style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 20px;">
+                            👆 Analyze your code to see AI insights
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Session Modal -->
+    <div class="modal" id="create-session-modal">
+        <div class="modal-content">
+            <h2>🆕 Create New Session</h2>
+            <form onsubmit="createSession(event)">
+                <div class="form-group">
+                    <label>Session Title</label>
+                    <input type="text" id="session-title" placeholder="My Project" required>
+                </div>
+                <div class="form-group">
+                    <label>Language</label>
+                    <select id="init-language">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="username" placeholder="Your name" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn btn-primary">Create Session</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('create-session-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Join Session Modal -->
+    <div class="modal" id="join-session-modal">
+        <div class="modal-content">
+            <h2>➕ Join Session</h2>
+            <form onsubmit="joinSession(event)">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="join-username" placeholder="Your name" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn btn-primary">Join</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('join-session-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // Global State
+        let currentSession = null;
+        let currentUser = null;
+        let socket = null;
+        let currentLanguage = 'javascript';
+        let analysisData = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSocketIO();
+            loadSessions();
+        });
+
+        // Socket.io Setup
+        function setupSocketIO() {
+            socket = io();
+
+            socket.on('user_joined', (data) => {
+                showToast(`${data.username} joined the session`, 'success');
+                updateUsersList();
+            });
+
+            socket.on('code_updated', (data) => {
+                if (data.user_id !== currentUser?.id) {
+                    document.getElementById('code-editor').value = data.code;
+                }
+            });
+
+            socket.on('analysis_complete', (data) => {
+                analysisData = data;
+                switchTab('quality');
+            });
+
+            socket.on('explanation_ready', (data) => {
+                analysisData = { explanation: data.explanation };
+                switchTab('explanation');
+            });
+
+            socket.on('user_left', (data) => {
+                showToast(`${data.username} left the session`, 'error');
+                updateUsersList();
+            });
+        }
+
+        // Modal Functions
+        function openCreateSessionModal() {
+            document.getElementById('create-session-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Session Management
+        async function createSession(event) {
+            event.preventDefault();
+            const title = document.getElementById('session-title').value;
+            const language = document.getElementById('init-language').value;
+            const username = document.getElementById('username').value;
+
+            try {
+                const response = await fetch('/api/session/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, code: '// Start coding...', language })
+                });
+                const data = await response.json();
+                currentSession = data.session_id;
+                currentUser = { id: Math.random().toString(), username };
+                currentLanguage = language;
+                
+                joinSessionSocket(data.session_id, username);
+                closeModal('create-session-modal');
+                updateSessionInfo();
+                loadSessions();
+                showToast(`Session "${title}" created!`, 'success');
+            } catch (error) {
+                showToast('Error creating session', 'error');
+            }
+        }
+
+        function joinSessionSocket(sessionId, username) {
+            socket.emit('join_session', {
+                session_id: sessionId,
+                username: username
+            });
+        }
+
+        async function loadSessions() {
+            try {
+                const response = await fetch('/api/sessions');
+                const data = await response.json();
+                const list = document.getElementById('sessions-list');
+                
+                list.innerHTML = data.sessions.map(session => `
+                    <div class="session-item" onclick="selectSession('${session.id}', '${session.title}', '${session.language}')">
+                        <div class="session-item-title">${session.title}</div>
+                        <div class="session-item-meta">
+                            ${session.language} • ${session.users_count} users
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        function selectSession(sessionId, title, language) {
+            const username = prompt('Enter your name:');
+            if (username) {
+                currentSession = sessionId;
+                currentUser = { id: Math.random().toString(), username };
+                currentLanguage = language;
+                joinSessionSocket(sessionId, username);
+                updateSessionInfo();
+                loadSessionCode();
+            }
+        }
+
+        async function loadSessionCode() {
+            try {
+                const response = await fetch(`/api/session/${currentSession}`);
+                const data = await response.json();
+                document.getElementById('code-editor').value = data.code;
+                updateUsersList();
+            } catch (error) {
+                console.error('Error loading session:', error);
+            }
+        }
+
+        function updateSessionInfo() {
+            document.getElementById('session-status').textContent = 
+                currentSession ? `Session: ${currentSession}` : 'No session active';
+            document.getElementById('editor-lang').textContent = `Language: ${currentLanguage}`;
+        }
+
+        function updateUsersList() {
+            // Placeholder for real user list
+            const usersList = document.getElementById('users-list');
+            if (currentUser) {
+                usersList.innerHTML = `
+                    <div class="user-item">
+                        <div class="user-online-indicator"></div>
+                        <span>${currentUser.username}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Code Analysis
+        async function analyzeCode() {
+            const code = document.getElementById('code-editor').value;
+            if (!code.trim()) {
+                showToast('Please enter some code first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language: currentLanguage })
+                });
+                analysisData = await response.json();
+                switchTab('quality');
+                showToast('Analysis complete!', 'success');
+            } catch (error) {
+                showToast('Error analyzing code', 'error');
+            }
+        }
+
+        async function explainCode() {
+            const code = document.getElementById('code-editor').value;
+            if (!code.trim()) {
+                showToast('Please enter some code first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/explain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                analysisData = await response.json();
+                switchTab('explanation');
+                showToast('Explanation ready!', 'success');
+            } catch (error) {
+                showToast('Error explaining code', 'error');
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event?.target?.classList.add('active');
+            
+            const content = document.getElementById('analysis-content');
+            
+            if (!analysisData) {
+                content.innerHTML = '<div style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 20px;">👆 Analyze your code</div>';
+                return;
+            }
+
+            if (tab === 'quality') {
+                renderQualityTab();
+            } else if (tab === 'suggestions') {
+                renderSuggestionsTab();
+            } else if (tab === 'security') {
+                renderSecurityTab();
+            } else if (tab === 'explanation') {
+                renderExplanationTab();
+            }
+        }
+
+        function renderQualityTab() {
+            const eval = analysisData.evaluation || {};
+            const html = `
+                <div class="quality-score">
+                    <div class="score-circle">${eval.quality_score || 0}</div>
+                    <div class="score-text">
+                        <div class="section-title">Code Quality</div>
+                        <div style="font-size: 13px;">Score out of 100</div>
+                    </div>
+                </div>
+                ${eval.issues && eval.issues.length > 0 ? `
+                    <div class="section-title">Issues</div>
+                    ${eval.issues.map(issue => `<div class="issue">${issue}</div>`).join('')}
+                ` : ''}
+                ${eval.suggestions && eval.suggestions.length > 0 ? `
+                    <div class="section-title">Suggestions</div>
+                    ${eval.suggestions.map(sug => `<div class="suggestion">${sug}</div>`).join('')}
+                ` : ''}
+            `;
+            document.getElementById('analysis-content').innerHTML = html;
+        }
+
+        function renderSuggestionsTab() {
+            const suggestions = analysisData.suggestions || [];
+            const refactoring = analysisData.refactoring || [];
+            const html = `
+                ${suggestions.length > 0 ? `
+                    <div class="section-title">Improvements</div>
+                    ${suggestions.map(s => `
+                        <div class="suggestion">
+                            <strong>${s.suggestion || ''}</strong>
+                            ${s.reason ? `<div style="margin-top: 4px; color: #cbd5e1;">${s.reason}</div>` : ''}
+                        </div>
+                    `).join('')}
+                ` : ''}
+                ${refactoring.length > 0 ? `
+                    <div class="section-title">Refactoring</div>
+                    ${refactoring.map(r => `<div class="suggestion">${r}</div>`).join('')}
+                ` : ''}
+                ${suggestions.length === 0 && refactoring.length === 0 ? `
+                    <div style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 20px;">✅ No suggestions</div>
+                ` : ''}
+            `;
+            document.getElementById('analysis-content').innerHTML = html;
+        }
+
+        function renderSecurityTab() {
+            const checks = analysisData.evaluation?.security_checks || [];
+            const html = checks.length > 0 ? `
+                ${checks.map(check => `
+                    <div class="security-warning">
+                        <strong>${check.keyword}</strong>
+                        <div style="margin-top: 4px; color: #cbd5e1; font-size: 11px;">${check.message}</div>
+                    </div>
+                `).join('')}
+            ` : '<div style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 20px;">✅ No security issues</div>';
+            document.getElementById('analysis-content').innerHTML = html;
+        }
+
+        function renderExplanationTab() {
+            const explanation = analysisData.explanation || 'No explanation available';
+            const html = `<div style="line-height: 1.6; font-size: 13px; color: #cbd5e1;">${explanation}</div>`;
+            document.getElementById('analysis-content').innerHTML = html;
+        }
+
+        // Code Editor Events
+        document.getElementById('code-editor').addEventListener('input', function() {
+            if (currentSession && currentUser) {
+                socket.emit('code_change', {
+                    session_id: currentSession,
+                    user_id: currentUser.id,
+                    code: this.value
+                });
+            }
+        });
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+        }
+
+        // Utilities
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
