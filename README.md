@@ -130,18 +130,21 @@ collaborative-code-editor/
 ## 🤖 AI Analysis Features
 
 ### Quality Scoring
+
 - Code complexity analysis
 - Best practices evaluation
 - Documentation completeness
 - Style compliance
 
 ### Security Scanning
+
 - Dangerous function detection (eval, exec, etc.)
 - SQL injection risks
 - Code injection vulnerabilities
 - Import statement validation
 
 ### Performance Optimization
+
 - Loop optimization suggestions
 - Algorithm efficiency tips
 - Resource usage recommendations
@@ -150,12 +153,15 @@ collaborative-code-editor/
 ## 🌟 Screenshots
 
 ### Main Editor
+
 ![Main Editor](https://via.placeholder.com/600x400?text=Main+Editor)
 
 ### AI Analysis Dashboard
+
 ![Analysis Dashboard](https://via.placeholder.com/600x400?text=AI+Analysis)
 
 ### Real-time Collaboration
+
 ![Collaboration](https://via.placeholder.com/600x400?text=Real-time+Sync)
 
 ## 🚧 Roadmap
