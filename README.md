@@ -19,9 +19,9 @@ A real-time collaborative code editor powered by AI, built with Flask, Socket.IO
 
 ## 🎬 Live Demo
 
-🌐 **[Try it live!](https://collaborative-code-editor-jklj.onrender.com/)** 
+🌐 **[Try it live on Render](https://collaborative-code-editor-jklj.onrender.com/)**
 
-> Note: First load may take 30-60 seconds (free tier auto-sleeps)
+> Render free tier sleeps after inactivity; first hit may take 30–60 seconds to wake.
 
 ![Collaborative Code Editor Demo](https://via.placeholder.com/800x400?text=Collaborative+Code+Editor)
 
@@ -34,12 +34,13 @@ A real-time collaborative code editor powered by AI, built with Flask, Socket.IO
 
 ### Installation
 
+> Heads-up: Render free tier sleeps after inactivity, so the first request can take 30–60 seconds to wake.
+
+![Collaborative Code Editor Demo](https://via.placeholder.com/800x400?text=Collaborative+Code+Editor)
 ```bash
 # Clone the repository
 git clone https://github.com/anuragchoudhary2313/collaborative-code-editor.git
 cd collaborative-code-editor
-
-# Create virtual environment
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1  # Windows
 source .venv/bin/activate      # Linux/Mac
@@ -70,6 +71,23 @@ docker run -d -p 5001:5001 \
   collaborative-code-editor
 
 # Access at http://localhost:5001
+## ☁️ Cloud Deployment (Render)
+
+Already deployed for you:
+
+- 🌐 Live: https://collaborative-code-editor-jklj.onrender.com/
+
+Redeploy on your own Render account (free tier):
+
+1. Go to [render.com](https://render.com) → New → Web Service
+2. Connect GitHub repo `anuragchoudhary2313/collaborative-code-editor`
+3. Runtime: **Python 3** (or Docker auto-detected)
+4. Build: `pip install -r requirements.txt`
+5. Start: `gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT code_editor_app:app`
+6. Env var: `GROQ_API_KEY=your-groq-api-key`
+7. Deploy (first boot may take ~3-5 minutes)
+
+Note: Free tier sleeps after 15 minutes idle; first hit wakes the app (30–60 seconds).
 ```
 
 Or use Docker Compose:
@@ -202,13 +220,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📧 Email: support@example.com
-- 🐛 Issues: [GitHub Issues](https://github.com/YOUR_USERNAME/collaborative-code-editor/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/YOUR_USERNAME/collaborative-code-editor/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/anuragchoudhary2313/collaborative-code-editor/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/anuragchoudhary2313/collaborative-code-editor/discussions)
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=YOUR_USERNAME/collaborative-code-editor&type=Date)](https://star-history.com/#YOUR_USERNAME/collaborative-code-editor&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=anuragchoudhary2313/collaborative-code-editor&type=Date)](https://star-history.com/#anuragchoudhary2313/collaborative-code-editor&Date)
 
 ---
 
