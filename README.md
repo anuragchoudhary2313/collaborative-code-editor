@@ -17,9 +17,10 @@ A real-time collaborative code editor powered by AI, built with Flask, Socket.IO
 - 🎨 **Beautiful UI** - Modern glassmorphism design with dark theme
 - 🌐 **7 Languages** - JavaScript, Python, Java, C++, HTML, CSS, SQL
 
-## 🎬 Live Demo
+## 🌐 Live Deployment
 
-🌐 **[Try it live on Render](https://collaborative-code-editor-jklj.onrender.com/)**
+- **App (Render):** https://collaborative-code-editor-jklj.onrender.com/
+- **Repository:** https://github.com/anuragchoudhary2313/collaborative-code-editor
 
 > Render free tier sleeps after inactivity; first hit may take 30–60 seconds to wake.
 
@@ -34,9 +35,6 @@ A real-time collaborative code editor powered by AI, built with Flask, Socket.IO
 
 ### Installation
 
-> Heads-up: Render free tier sleeps after inactivity, so the first request can take 30–60 seconds to wake.
-
-![Collaborative Code Editor Demo](https://via.placeholder.com/800x400?text=Collaborative+Code+Editor)
 ```bash
 # Clone the repository
 git clone https://github.com/anuragchoudhary2313/collaborative-code-editor.git
@@ -71,6 +69,8 @@ docker run -d -p 5001:5001 \
   collaborative-code-editor
 
 # Access at http://localhost:5001
+```
+
 ## ☁️ Cloud Deployment (Render)
 
 Already deployed for you:
@@ -88,7 +88,6 @@ Redeploy on your own Render account (free tier):
 7. Deploy (first boot may take ~3-5 minutes)
 
 Note: Free tier sleeps after 15 minutes idle; first hit wakes the app (30–60 seconds).
-```
 
 Or use Docker Compose:
 
