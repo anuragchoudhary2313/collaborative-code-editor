@@ -17,7 +17,11 @@ A real-time collaborative code editor powered by AI, built with Flask, Socket.IO
 - 🎨 **Beautiful UI** - Modern glassmorphism design with dark theme
 - 🌐 **7 Languages** - JavaScript, Python, Java, C++, HTML, CSS, SQL
 
-## 🎬 Demo
+## 🎬 Live Demo
+
+🌐 **[Try it live!](https://collaborative-code-editor-jklj.onrender.com/)** 
+
+> Note: First load may take 30-60 seconds (free tier auto-sleeps)
 
 ![Collaborative Code Editor Demo](https://via.placeholder.com/800x400?text=Collaborative+Code+Editor)
 
